@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 import csv
 import os
 import math
@@ -6,6 +6,11 @@ import re
 from Sastrawi.Stemmer.StemmerFactory import StemmerFactory
 
 app = Flask(__name__)
+
+@app.after_request
+def add_cors_headers(response):
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    return response
 
 # 1. Inisialisasi Stemmer Sastrawi
 factory = StemmerFactory()
@@ -44,7 +49,7 @@ def compute_tf(term, tokens):
 
 @app.route('/', methods=['GET'])
 def home():
-    return jsonify({"status": "API Mesin Pencari STKI Berjalan"})
+    return render_template('index.html')
 
 @app.route('/search', methods=['GET'])
 def search():
