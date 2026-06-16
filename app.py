@@ -103,12 +103,15 @@ def search():
 
         # Hanya tampilkan dokumen yang relevan (skor > 0)
         if score > 0:
+            url_asli = doc.get('url_sumber', doc.get('link', doc.get('url', '#')))
+            
             hasil.append({
-                "id": doc['id'],
-                "judul": doc['judul'],
-                "konten_snippet": str(doc['konten'])[:120] + "...",
+                "id": doc.get('id', ''),
+                "judul": doc.get('judul', ''),
+                "konten": doc.get('konten', ''),
+                "konten_snippet": str(doc.get('konten', ''))[:120] + "...",
                 "skor_relevansi": round(score, 4), # Dibulatkan 4 desimal
-                "url_sumber": doc['url_sumber']
+                "url_sumber": url_asli
             })
 
     # E. Ranking Dokumen (diurutkan dari skor tertinggi)

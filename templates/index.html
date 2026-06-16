@@ -148,7 +148,7 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-light btn-modern me-2" data-bs-dismiss="modal">Tutup</button>
-        <a href="modalLink" id="modalLink" target="_blank" class="btn btn-primary btn-modern px-4">
+        <a href="#" id="modalLink" target="_blank" class="btn btn-primary btn-modern px-4">
             <i class="bi bi-box-arrow-up-right me-2"></i>Buka Sumber Asli
         </a>
       </div>
@@ -178,9 +178,18 @@
         const item = dataDokumenAktif[index];
         document.getElementById('modalJudul').innerText = item.judul;
         
-        // Menampilkan konten secara utuh di dalam modal
-        document.getElementById('modalDeskripsi').innerText = item.konten;
-        document.getElementById('modalLink').href = item.url_sumber;
+        const deskripsi = item.konten;
+        document.getElementById('modalDeskripsi').innerText = deskripsi;
+        
+        const linkAsli = item.url_sumber || '#';
+        document.getElementById('modalLink').href = linkAsli;
+        
+        // Opsional: Jika di CSV memang tidak ada link sama sekali, sembunyikan tombolnya.
+        if (linkAsli === '#') {
+            document.getElementById('modalLink').style.display = 'none';
+        } else {
+            document.getElementById('modalLink').style.display = 'inline-block';
+        }
         
         modalInstance.show();
     }
