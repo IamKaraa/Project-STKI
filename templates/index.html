@@ -7,10 +7,9 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body { background-color: #f8f9fa; }
-        /* Posisi margin dibuat agak ke atas (5vh) agar pas sebagai dashboard */
         .search-container { margin-top: 5vh; transition: margin 0.3s ease; }
-        .result-card { border-left: 4px solid #0d6efd; transition: transform 0.2s; }
-        .result-card:hover { transform: translateX(5px); }
+        .result-card { border-left: 4px solid #0d6efd; transition: transform 0.2s; cursor: pointer; }
+        .result-card:hover { transform: translateX(5px); background-color: #f1f7ff; }
     </style>
 </head>
 <body>
@@ -35,36 +34,79 @@
     </div>
 </div>
 
+<div class="modal fade" id="dokumenModal" tabindex="-1" aria-labelledby="dokumenModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header border-0 pb-0">
+        <h5 class="modal-title text-primary fw-bold" id="modalJudul">Judul Dokumen</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p id="modalDeskripsi" class="text-muted" style="text-align: justify;">Deskripsi dokumen akan muncul di sini.</p>
+      </div>
+      <div class="modal-footer border-0 pt-0">
+        <a href="#" id="modalLink" target="_blank" class="btn btn-primary w-100">Buka Sumber Asli</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
 <script>
-    // Menyimpan kedua rute API
     const API_URL_SEARCH = '/search';
     const API_URL_ALL = '/all-documents';
 
     const resultsArea = document.getElementById('resultsArea');
     const statusMessage = document.getElementById('statusMessage');
     const searchInput = document.getElementById('searchInput');
+    
+    // Variabel penampung data agar bisa dibaca oleh Modal
+    let dataDokumenAktif = []; 
+    // Inisialisasi Modal Bootstrap
+    let modalInstance;
 
-    // 1. Fungsi untuk memuat semua dokumen (Dashboard)
+    // Tunggu halaman selesai dimuat
+    window.addEventListener('DOMContentLoaded', () => {
+        modalInstance = new bootstrap.Modal(document.getElementById('dokumenModal'));
+        loadAllDocuments();
+    });
+
+    // Fungsi untuk memunculkan Pop-up
+    function bukaModal(index) {
+        const item = dataDokumenAktif[index];
+        document.getElementById('modalJudul').innerText = item.judul;
+        
+        // Pilih deskripsi yang tepat (tergantung dari rute all-documents atau search)
+        const deskripsi = item.konten_snippet ? item.konten_snippet : item.konten.substring(0, 200) + '...';
+        document.getElementById('modalDeskripsi').innerText = deskripsi;
+        
+        document.getElementById('modalLink').href = item.url_sumber;
+        modalInstance.show();
+    }
+
     async function loadAllDocuments() {
         statusMessage.innerHTML = '<i>Memuat daftar dokumen...</i>';
         resultsArea.innerHTML = '';
-        searchInput.value = ''; // Kosongkan kotak pencarian
+        searchInput.value = '';
 
         try {
             const response = await fetch(API_URL_ALL);
             const data = await response.json();
+            
+            dataDokumenAktif = data.data; // Simpan ke memori sementara
 
             statusMessage.innerHTML = `<h5 class="border-bottom pb-2 mb-3">Semua Dokumen Tersedia (${data.total} Dokumen)</h5>`;
             
-            data.data.forEach(item => {
+            data.data.forEach((item, index) => {
                 resultsArea.innerHTML += `
-                    <div class="card mb-3 border-0 shadow-sm result-card">
+                    <div class="card mb-3 border-0 shadow-sm result-card" onclick="bukaModal(${index})">
                         <div class="card-body">
-                            <h5 class="card-title mb-1">
-                                <a href="${item.url_sumber}" target="_blank" class="text-decoration-none">${item.judul}</a>
+                            <h5 class="card-title mb-1 text-primary">
+                                ${item.judul}
                             </h5>
                             <p class="card-text text-muted mb-2">${item.konten.substring(0, 150)}...</p>
-                            <small class="text-primary">${item.url_sumber}</small>
+                            <small class="text-primary">Klik untuk lihat detail</small>
                         </div>
                     </div>
                 `;
@@ -74,10 +116,6 @@
         }
     }
 
-    // PENTING: Jalankan fungsi loadAllDocuments otomatis saat web pertama kali dibuka
-    window.addEventListener('DOMContentLoaded', loadAllDocuments);
-
-    // 2. Fungsi saat tombol Cari ditekan
     document.getElementById('searchForm').addEventListener('submit', async function(e) {
         e.preventDefault();
         const query = searchInput.value;
@@ -88,6 +126,8 @@
         try {
             const response = await fetch(`${API_URL_SEARCH}?q=${encodeURIComponent(query)}`);
             const data = await response.json();
+            
+            dataDokumenAktif = data.data; // Simpan data hasil pencarian
 
             if (data.total_hasil === 0) {
                 statusMessage.innerHTML = `Tidak ada dokumen yang relevan untuk <strong>"${query}"</strong>.<br>
@@ -95,20 +135,19 @@
                 return;
             }
 
-            // Tampilkan tombol kembali ke semua dokumen di bawah status
             statusMessage.innerHTML = `Menemukan ${data.total_hasil} hasil untuk <strong>"${query}"</strong>.<br>
             <button class="btn btn-sm btn-outline-secondary mt-2" onclick="loadAllDocuments()">Kembali ke Semua Dokumen</button>`;
             
-            data.data.forEach(item => {
+            data.data.forEach((item, index) => {
                 resultsArea.innerHTML += `
-                    <div class="card mb-3 border-0 shadow-sm result-card">
+                    <div class="card mb-3 border-0 shadow-sm result-card" onclick="bukaModal(${index})">
                         <div class="card-body">
-                            <h5 class="card-title mb-1">
-                                <a href="${item.url_sumber}" target="_blank" class="text-decoration-none">${item.judul}</a>
+                            <h5 class="card-title mb-1 text-primary">
+                                ${item.judul}
                             </h5>
                             <span class="badge bg-success mb-2">Skor Relevansi: ${item.skor_relevansi}</span>
                             <p class="card-text text-muted mb-2">${item.konten_snippet}</p>
-                            <small class="text-primary">${item.url_sumber}</small>
+                            <small class="text-primary">Klik untuk lihat detail</small>
                         </div>
                     </div>
                 `;
