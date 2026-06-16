@@ -17,15 +17,19 @@
 <body>
 
 <div class="container">
-    <div class="row justify-content-center search-container {{ $query ? 'has-results' : '' }}">
+    <div class="row justify-content-center search-container {{ isset($query) && $query ? 'has-results' : '' }}">
         <div class="col-md-8 text-center">
             <h2 class="mb-4 text-primary fw-bold">STKI Search</h2>
             <form action="{{ route('home') }}" method="GET" class="d-flex shadow-sm rounded">
                 <input type="text" name="q" class="form-control form-control-lg border-0" 
                        placeholder="Cari dokumen regulasi ketenagakerjaan, JHT, JKK..." 
-                       value="{{ $query ?? '' }}" required>
+                       value="{{ $query ?? '' }}">
                 <button type="submit" class="btn btn-primary btn-lg px-4 border-0">Cari</button>
             </form>
+            
+            <div class="mt-3">
+                <a href="{{ route('all.documents') }}" class="btn btn-outline-secondary btn-sm">Lihat Semua Dokumen</a>
+            </div>
         </div>
     </div>
 
@@ -33,12 +37,12 @@
         <div class="alert alert-danger text-center">{{ session('error') }}</div>
     @endif
 
-    @if($query)
+    @if(isset($query) && $query)
         <div class="row justify-content-center">
             <div class="col-md-8">
-                <p class="text-muted mb-4">Menemukan {{ $total_hasil }} hasil untuk <strong>"{{ $query }}"</strong></p>
+                <p class="text-muted mb-4">Menemukan {{ $total_hasil ?? 0 }} hasil untuk <strong>"{{ $query }}"</strong></p>
 
-                @forelse($results as $item)
+                @forelse($results ?? [] as $item)
                     <div class="card mb-3 border-0 shadow-sm result-card">
                         <div class="card-body">
                             <h5 class="card-title text-primary mb-1">
@@ -46,14 +50,18 @@
                                     {{ $item['judul'] }}
                                 </a>
                             </h5>
-                            <span class="badge bg-success mb-2 score-badge">Skor Relevansi: {{ $item['skor_relevansi'] }}</span>
-                            <p class="card-text text-muted mb-2">{{ $item['konten_snippet'] }}</p>
+                            @if(isset($item['skor_relevansi']))
+                                <span class="badge bg-success mb-2 score-badge">Skor Relevansi: {{ $item['skor_relevansi'] }}</span>
+                            @else
+                                <span class="badge bg-secondary mb-2 score-badge">Dokumen Sistem</span>
+                            @endif
+                            <p class="card-text text-muted mb-2">{{ isset($item['konten_snippet']) ? $item['konten_snippet'] : substr($item['konten'], 0, 120) . '...' }}</p>
                             <small class="text-primary">{{ $item['url_sumber'] }}</small>
                         </div>
                     </div>
                 @empty
                     <div class="text-center mt-5">
-                        <h5 class="text-muted">Tidak ada dokumen yang relevan.</h5>
+                        <h5 class="text-muted">Tidak ada dokumen yang ditemukan.</h5>
                     </div>
                 @endforelse
             </div>
