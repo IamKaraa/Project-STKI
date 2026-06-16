@@ -119,6 +119,13 @@ def search():
         "total_hasil": len(hasil),
         "data": hasil
     })
+    
+@app.route('/all-documents', methods=['GET'])
+def all_documents():
+    return jsonify({
+        "total": len(dataset_dokumen),
+        "data": dataset_dokumen
+    })
 
 if __name__ == '__main__':
     app.run(debug=True)

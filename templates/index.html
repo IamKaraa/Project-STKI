@@ -7,7 +7,8 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body { background-color: #f8f9fa; }
-        .search-container { margin-top: 10vh; transition: margin 0.3s ease; }
+        /* Posisi margin dibuat agak ke atas (5vh) agar pas sebagai dashboard */
+        .search-container { margin-top: 5vh; transition: margin 0.3s ease; }
         .result-card { border-left: 4px solid #0d6efd; transition: transform 0.2s; }
         .result-card:hover { transform: translateX(5px); }
     </style>
@@ -35,31 +36,68 @@
 </div>
 
 <script>
-    // Memanggil API Python di rute yang sama secara langsung
-    const API_URL = '/search';
+    // Menyimpan kedua rute API
+    const API_URL_SEARCH = '/search';
+    const API_URL_ALL = '/all-documents';
 
+    const resultsArea = document.getElementById('resultsArea');
+    const statusMessage = document.getElementById('statusMessage');
+    const searchInput = document.getElementById('searchInput');
+
+    // 1. Fungsi untuk memuat semua dokumen (Dashboard)
+    async function loadAllDocuments() {
+        statusMessage.innerHTML = '<i>Memuat daftar dokumen...</i>';
+        resultsArea.innerHTML = '';
+        searchInput.value = ''; // Kosongkan kotak pencarian
+
+        try {
+            const response = await fetch(API_URL_ALL);
+            const data = await response.json();
+
+            statusMessage.innerHTML = `<h5 class="border-bottom pb-2 mb-3">Semua Dokumen Tersedia (${data.total} Dokumen)</h5>`;
+            
+            data.data.forEach(item => {
+                resultsArea.innerHTML += `
+                    <div class="card mb-3 border-0 shadow-sm result-card">
+                        <div class="card-body">
+                            <h5 class="card-title mb-1">
+                                <a href="${item.url_sumber}" target="_blank" class="text-decoration-none">${item.judul}</a>
+                            </h5>
+                            <p class="card-text text-muted mb-2">${item.konten.substring(0, 150)}...</p>
+                            <small class="text-primary">${item.url_sumber}</small>
+                        </div>
+                    </div>
+                `;
+            });
+        } catch (error) {
+            statusMessage.innerHTML = `<span class="text-danger">Gagal memuat dokumen dari server.</span>`;
+        }
+    }
+
+    // PENTING: Jalankan fungsi loadAllDocuments otomatis saat web pertama kali dibuka
+    window.addEventListener('DOMContentLoaded', loadAllDocuments);
+
+    // 2. Fungsi saat tombol Cari ditekan
     document.getElementById('searchForm').addEventListener('submit', async function(e) {
         e.preventDefault();
-        const query = document.getElementById('searchInput').value;
-        const resultsArea = document.getElementById('resultsArea');
-        const statusMessage = document.getElementById('statusMessage');
-        const searchHeader = document.getElementById('searchHeader');
+        const query = searchInput.value;
 
-        // Animasi naik saat mencari
-        searchHeader.style.marginTop = '3vh';
         statusMessage.innerHTML = '<i>Mencari dokumen...</i>';
         resultsArea.innerHTML = '';
 
         try {
-            const response = await fetch(`${API_URL}?q=${encodeURIComponent(query)}`);
+            const response = await fetch(`${API_URL_SEARCH}?q=${encodeURIComponent(query)}`);
             const data = await response.json();
 
             if (data.total_hasil === 0) {
-                statusMessage.innerHTML = `Tidak ada dokumen yang relevan untuk <strong>"${query}"</strong>.`;
+                statusMessage.innerHTML = `Tidak ada dokumen yang relevan untuk <strong>"${query}"</strong>.<br>
+                <button class="btn btn-link mt-2" onclick="loadAllDocuments()">Kembali ke Semua Dokumen</button>`;
                 return;
             }
 
-            statusMessage.innerHTML = `Menemukan ${data.total_hasil} hasil untuk <strong>"${query}"</strong>`;
+            // Tampilkan tombol kembali ke semua dokumen di bawah status
+            statusMessage.innerHTML = `Menemukan ${data.total_hasil} hasil untuk <strong>"${query}"</strong>.<br>
+            <button class="btn btn-sm btn-outline-secondary mt-2" onclick="loadAllDocuments()">Kembali ke Semua Dokumen</button>`;
             
             data.data.forEach(item => {
                 resultsArea.innerHTML += `
