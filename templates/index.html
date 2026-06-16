@@ -178,10 +178,10 @@
         const item = dataDokumenAktif[index];
         document.getElementById('modalJudul').innerText = item.judul;
         
-        const deskripsi = item.konten;
+        const deskripsi = item.konten ? item.konten : item.konten_snippet;
         document.getElementById('modalDeskripsi').innerText = deskripsi;
-        
-        const linkAsli = item.url_sumber || '#';
+
+        const linkAsli = item.url_sumber || item.link || item.url || '#';
         document.getElementById('modalLink').href = linkAsli;
         
         // Opsional: Jika di CSV memang tidak ada link sama sekali, sembunyikan tombolnya.
