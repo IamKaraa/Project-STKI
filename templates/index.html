@@ -3,49 +3,154 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cari Jurnal Reii</title>
+    <title>CJR - Cari Jurnal Reii</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    
     <style>
-        body { background-color: #f8f9fa; }
-        .search-container { margin-top: 5vh; transition: margin 0.3s ease; }
-        .result-card { border-left: 4px solid #0d6efd; transition: transform 0.2s; cursor: pointer; }
-        .result-card:hover { transform: translateX(5px); background-color: #f1f7ff; }
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: #f4f7fb; /* Warna background lebih modern */
+            color: #334155;
+        }
+        
+        /* Bagian Header & Pencarian */
+        .hero-section {
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            padding: 5vh 0 4vh;
+            border-bottom: 1px solid #e2e8f0;
+            margin-bottom: 40px;
+        }
+        .brand-title {
+            font-weight: 700;
+            color: #1e40af;
+            letter-spacing: -0.5px;
+        }
+        .search-wrapper {
+            position: relative;
+            max-width: 650px;
+            margin: 0 auto;
+        }
+        .search-input {
+            border-radius: 50px;
+            padding: 16px 24px 16px 55px;
+            font-size: 1.1rem;
+            border: 1px solid #cbd5e1;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+        .search-input:focus {
+            box-shadow: 0 10px 15px -3px rgba(30, 64, 175, 0.15);
+            border-color: #3b82f6;
+            outline: none;
+        }
+        .search-icon {
+            position: absolute;
+            left: 22px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #64748b;
+            font-size: 1.2rem;
+            z-index: 10;
+        }
+        .search-btn {
+            position: absolute;
+            right: 8px;
+            top: 8px;
+            bottom: 8px;
+            border-radius: 40px;
+            padding: 0 30px;
+            font-weight: 600;
+            background-color: #2563eb;
+            border: none;
+            transition: background-color 0.2s;
+        }
+        .search-btn:hover { background-color: #1d4ed8; }
+
+        /* Kartu Hasil Dokumen */
+        .result-card {
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            transition: all 0.2s ease;
+            cursor: pointer;
+            background-color: #ffffff;
+        }
+        .result-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 20px -8px rgba(37, 99, 235, 0.15);
+            border-color: #bfdbfe;
+        }
+        .card-title-custom {
+            font-weight: 600;
+            color: #1e40af;
+            font-size: 1.15rem;
+        }
+        .score-badge {
+            background-color: #ecfdf5;
+            color: #059669;
+            border: 1px solid #a7f3d0;
+            font-weight: 500;
+            border-radius: 6px;
+        }
+        
+        /* Modal (Pop-up) */
+        .modal-content {
+            border-radius: 16px;
+            border: none;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+        .modal-header { border-bottom: 1px solid #f1f5f9; padding: 20px 24px; }
+        .modal-body { padding: 24px; font-size: 1.05rem; line-height: 1.6; color: #475569; }
+        .modal-footer { border-top: 1px solid #f1f5f9; padding: 16px 24px; }
+        .btn-modern { border-radius: 8px; font-weight: 500; letter-spacing: 0.3px; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div class="row justify-content-center search-container" id="searchHeader">
-        <div class="col-md-8 text-center mb-4">
-            <h2 class="text-primary fw-bold">CJR</h2>
-            <form id="searchForm" class="d-flex shadow-sm rounded">
-                <input type="text" id="searchInput" class="form-control form-control-lg border-0" 
-                       placeholder="Cari dokumen..." required>
-                <button type="submit" class="btn btn-primary btn-lg px-4 border-0">Cari</button>
-            </form>
+<div class="hero-section shadow-sm">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-10 text-center">
+                <h2 class="mb-4 brand-title"><i class="bi bi-journal-text me-2"></i>Cari Jurnal Reii</h2>
+                
+                <form id="searchForm" class="search-wrapper">
+                    <i class="bi bi-search search-icon"></i>
+                    <input type="text" id="searchInput" class="form-control search-input" 
+                           placeholder="Ketik kata kunci dokumen yang ingin dicari..." required autocomplete="off">
+                    <button type="submit" class="btn btn-primary search-btn">Cari</button>
+                </form>
+            </div>
         </div>
     </div>
+</div>
 
+<div class="container mb-5">
     <div class="row justify-content-center">
         <div class="col-md-8">
-            <div id="statusMessage" class="text-muted mb-4 text-center"></div>
+            <div id="statusMessage" class="text-muted mb-4 text-center" style="font-weight: 500;"></div>
             <div id="resultsArea"></div>
         </div>
     </div>
 </div>
 
-<div class="modal fade" id="dokumenModal" tabindex="-1" aria-labelledby="dokumenModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
+<div class="modal fade" id="dokumenModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
     <div class="modal-content">
-      <div class="modal-header border-0 pb-0">
-        <h5 class="modal-title text-primary fw-bold" id="modalJudul">Judul Dokumen</h5>
+      <div class="modal-header">
+        <h5 class="modal-title card-title-custom" id="modalJudul">Judul Dokumen</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <p id="modalDeskripsi" class="text-muted" style="text-align: justify;">Deskripsi dokumen akan muncul di sini.</p>
+        <p id="modalDeskripsi" style="text-align: justify;"></p>
       </div>
-      <div class="modal-footer border-0 pt-0">
-        <a href="#" id="modalLink" target="_blank" class="btn btn-primary w-100">Buka Sumber Asli</a>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-light btn-modern me-2" data-bs-dismiss="modal">Tutup</button>
+        <a href="#" id="modalLink" target="_blank" class="btn btn-primary btn-modern px-4">
+            <i class="bi bi-box-arrow-up-right me-2"></i>Buka Sumber Asli
+        </a>
       </div>
     </div>
   </div>
@@ -61,32 +166,27 @@
     const statusMessage = document.getElementById('statusMessage');
     const searchInput = document.getElementById('searchInput');
     
-    // Variabel penampung data agar bisa dibaca oleh Modal
     let dataDokumenAktif = []; 
-    // Inisialisasi Modal Bootstrap
     let modalInstance;
 
-    // Tunggu halaman selesai dimuat
     window.addEventListener('DOMContentLoaded', () => {
         modalInstance = new bootstrap.Modal(document.getElementById('dokumenModal'));
         loadAllDocuments();
     });
 
-    // Fungsi untuk memunculkan Pop-up
     function bukaModal(index) {
         const item = dataDokumenAktif[index];
         document.getElementById('modalJudul').innerText = item.judul;
         
-        // Pilih deskripsi yang tepat (tergantung dari rute all-documents atau search)
-        const deskripsi = item.konten_snippet ? item.konten_snippet : item.konten.substring(0, 200) + '...';
-        document.getElementById('modalDeskripsi').innerText = deskripsi;
-        
+        // Menampilkan konten secara utuh di dalam modal
+        document.getElementById('modalDeskripsi').innerText = item.konten;
         document.getElementById('modalLink').href = item.url_sumber;
+        
         modalInstance.show();
     }
 
     async function loadAllDocuments() {
-        statusMessage.innerHTML = '<i>Memuat daftar dokumen...</i>';
+        statusMessage.innerHTML = '<div class="spinner-border text-primary spinner-border-sm me-2" role="status"></div>Memuat basis data dokumen...';
         resultsArea.innerHTML = '';
         searchInput.value = '';
 
@@ -94,25 +194,28 @@
             const response = await fetch(API_URL_ALL);
             const data = await response.json();
             
-            dataDokumenAktif = data.data; // Simpan ke memori sementara
+            dataDokumenAktif = data.data;
 
-            statusMessage.innerHTML = `<h5 class="border-bottom pb-2 mb-3">Semua Dokumen Tersedia (${data.total} Dokumen)</h5>`;
+            statusMessage.innerHTML = `<div class="d-flex align-items-center justify-content-between border-bottom pb-2 mb-3">
+                <h6 class="mb-0 fw-bold text-secondary"><i class="bi bi-collection me-2"></i>Semua Dokumen (${data.total})</h6>
+            </div>`;
             
             data.data.forEach((item, index) => {
                 resultsArea.innerHTML += `
-                    <div class="card mb-3 border-0 shadow-sm result-card" onclick="bukaModal(${index})">
-                        <div class="card-body">
-                            <h5 class="card-title mb-1 text-primary">
-                                ${item.judul}
-                            </h5>
-                            <p class="card-text text-muted mb-2">${item.konten.substring(0, 150)}...</p>
-                            <small class="text-primary">Klik untuk lihat detail</small>
+                    <div class="card mb-3 result-card" onclick="bukaModal(${index})">
+                        <div class="card-body p-4">
+                            <h5 class="card-title-custom mb-2">${item.judul}</h5>
+                            <p class="card-text text-muted mb-3" style="font-size: 0.95rem;">${item.konten.substring(0, 160)}...</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <small class="text-primary fw-medium"><i class="bi bi-eye me-1"></i>Klik untuk baca detail</small>
+                                <span class="badge bg-light text-secondary border"><i class="bi bi-link-45deg me-1"></i>Sumber Eksternal</span>
+                            </div>
                         </div>
                     </div>
                 `;
             });
         } catch (error) {
-            statusMessage.innerHTML = `<span class="text-danger">Gagal memuat dokumen dari server.</span>`;
+            statusMessage.innerHTML = `<span class="text-danger"><i class="bi bi-exclamation-triangle me-2"></i>Gagal memuat dokumen. Server sedang sibuk.</span>`;
         }
     }
 
@@ -120,40 +223,54 @@
         e.preventDefault();
         const query = searchInput.value;
 
-        statusMessage.innerHTML = '<i>Mencari dokumen...</i>';
+        statusMessage.innerHTML = '<div class="spinner-border text-primary spinner-border-sm me-2" role="status"></div>Menganalisis relevansi dokumen...';
         resultsArea.innerHTML = '';
 
         try {
             const response = await fetch(`${API_URL_SEARCH}?q=${encodeURIComponent(query)}`);
             const data = await response.json();
             
-            dataDokumenAktif = data.data; // Simpan data hasil pencarian
+            dataDokumenAktif = data.data;
 
             if (data.total_hasil === 0) {
-                statusMessage.innerHTML = `Tidak ada dokumen yang relevan untuk <strong>"${query}"</strong>.<br>
-                <button class="btn btn-link mt-2" onclick="loadAllDocuments()">Kembali ke Semua Dokumen</button>`;
+                statusMessage.innerHTML = `
+                <div class="alert alert-light border text-center py-4" role="alert">
+                    <i class="bi bi-search text-muted mb-2" style="font-size: 2rem;"></i>
+                    <h6 class="mt-2">Tidak ada dokumen yang relevan untuk "<strong>${query}</strong>".</h6>
+                    <button class="btn btn-outline-primary btn-sm mt-3 btn-modern" onclick="loadAllDocuments()">
+                        <i class="bi bi-arrow-left me-1"></i>Kembali ke Dashboard Utama
+                    </button>
+                </div>`;
                 return;
             }
 
-            statusMessage.innerHTML = `Menemukan ${data.total_hasil} hasil untuk <strong>"${query}"</strong>.<br>
-            <button class="btn btn-sm btn-outline-secondary mt-2" onclick="loadAllDocuments()">Kembali ke Semua Dokumen</button>`;
+            statusMessage.innerHTML = `<div class="d-flex align-items-center justify-content-between border-bottom pb-2 mb-3">
+                <h6 class="mb-0 fw-bold text-secondary">
+                    Menemukan ${data.total_hasil} hasil relevan
+                </h6>
+                <button class="btn btn-sm btn-light border text-secondary btn-modern" onclick="loadAllDocuments()">
+                    <i class="bi bi-x-circle me-1"></i>Reset Pencarian
+                </button>
+            </div>`;
             
             data.data.forEach((item, index) => {
                 resultsArea.innerHTML += `
-                    <div class="card mb-3 border-0 shadow-sm result-card" onclick="bukaModal(${index})">
-                        <div class="card-body">
-                            <h5 class="card-title mb-1 text-primary">
-                                ${item.judul}
-                            </h5>
-                            <span class="badge bg-success mb-2">Skor Relevansi: ${item.skor_relevansi}</span>
-                            <p class="card-text text-muted mb-2">${item.konten_snippet}</p>
-                            <small class="text-primary">Klik untuk lihat detail</small>
+                    <div class="card mb-3 result-card" onclick="bukaModal(${index})">
+                        <div class="card-body p-4">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h5 class="card-title-custom mb-0">${item.judul}</h5>
+                                <span class="badge score-badge"><i class="bi bi-check-circle me-1"></i>Skor TF-IDF: ${item.skor_relevansi}</span>
+                            </div>
+                            <p class="card-text text-muted mb-3" style="font-size: 0.95rem;">${item.konten_snippet}</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <small class="text-primary fw-medium"><i class="bi bi-eye me-1"></i>Klik untuk baca detail</small>
+                            </div>
                         </div>
                     </div>
                 `;
             });
         } catch (error) {
-            statusMessage.innerHTML = `<span class="text-danger">Gagal terhubung ke server pencarian.</span>`;
+            statusMessage.innerHTML = `<span class="text-danger"><i class="bi bi-exclamation-triangle me-2"></i>Gagal melakukan pencarian. Periksa koneksi server.</span>`;
         }
     });
 </script>
